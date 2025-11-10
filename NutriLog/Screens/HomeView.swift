@@ -3,7 +3,17 @@ import SwiftData
 
 struct HomeView: View {
     var body: some View {
-        Text("Vue Onglets pour Journée et Graphiques")
+        TabView{
+            Tab("Journée", systemImage: "sun.max"){
+                DailySummaryView()
+            }
+            Tab("Graphiques", systemImage: "chart.bar.fill"){
+                DailyChartsView()
+            }
+            
+        }
+        .accentColor(Color("nutrilog_orange"))
+        
     }
 }
 

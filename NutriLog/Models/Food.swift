@@ -11,9 +11,9 @@ class Food {
     var protein: Double
     var carbs: Double
     var fat: Double
-    var desc: String? = nil
+    var desc: String
 
-    init(name: String, calories: Double, protein: Double, carbs: Double, fat: Double, desc: String? = nil) {
+    init(name: String, calories: Double, protein: Double, carbs: Double, fat: Double, desc: String) {
         self.name = name
         self.calories = calories
         self.protein = protein
