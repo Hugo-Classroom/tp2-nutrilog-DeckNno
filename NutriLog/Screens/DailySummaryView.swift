@@ -2,29 +2,23 @@ import SwiftUI
 import Charts
 
 struct DailySummaryView: View {
+    @Environment(\.modelContext) private var modelContext
+    @State private var showAddForm = false
     
     var body: some View {
         
-        let consumedCal = 1214
-        let totalCal = 2500
+        let consumedCal = calculConsumedCal()
+        let totalCal = Double(2500)
         NavigationStack {
             ZStack {
                 Color("list_color").ignoresSafeArea(.all)
                 VStack {
                     
                     HStack {
-                        Button("", systemImage: "plus") {
-                            
-                        }
-                        .accentColor(Color("nutrilog_orange"))
-                        .imageScale(.large)
-                        .fontWeight(.medium)
-                        .offset(x: 260, y: 10)
-                        
                         Text("Aujourd'hui")
                             .bold()
                             .font(.largeTitle)
-                            .offset(x: -110, y: 30)
+                            .offset(x: -85, y: 30)
                     }
                     .padding(.bottom, 30)
                     
@@ -36,15 +30,17 @@ struct DailySummaryView: View {
                                         Text("Restantes")
                                             .bold()
                                         HStack {
-                                            Text("\(totalCal - consumedCal)")
+                                            Text("\((totalCal - consumedCal).formatted())")
                                                 .bold()
                                             Text("cal")
                                                 .foregroundStyle(.gray)
                                         }
                                         
                                     }
+                                    
                                     CaloriesPercentInCercle(progression: Double(consumedCal)/Double(totalCal))
                                         .frame(width: 40)
+                                        .padding(.leading, 14)
                                 }
                                 Spacer()
                                 HStack{
@@ -59,7 +55,7 @@ struct DailySummaryView: View {
                                         Text("Consommées")
                                             .bold()
                                         HStack {
-                                            Text("\(consumedCal)")
+                                            Text("\(consumedCal.formatted())")
                                                 .bold()
                                             Text("cal")
                                                 .foregroundStyle(.gray)
@@ -71,43 +67,48 @@ struct DailySummaryView: View {
                         Section(header: Text("MACROS")) {
                             HStack {
                                 macros(
-                                    nom: "Protéines", min: 127, max: 150, color: .red)
+                                    nom: "Protéines", min: calculConsumedProt(), max: 150, color: .red)
                                 macros(
-                                    nom: "Glucides", min: 105, max: 125, color: .purple)
+                                    nom: "Glucides", min: calculConsumedGluci(), max: 125, color: .purple)
                                 macros(
-                                    nom: "Lipides", min: 35, max: 100, color: .blue)
+                                    nom: "Lipides", min: calculConsumedLipi(), max: 100, color: .blue)
                                 
                             }
                         }
                         
                         Section(header: Text("DÉJEUNER")) {
-                            
-                            ForEach(MockData.foods.indices, id: \.self) { i
+                            ForEach(MockData.foodEntries.indices, id: \.self) { i
                                 in
-                                NavigationLink {
-                                    FoodDetailView(food : MockData.proteinFood)
-                                } label: {
-                                    FoodListView(food : MockData.proteinFood)
+                                if (MockData.foodEntries[i].mealType == MealType.breakfast) {
+                                    NavigationLink {
+                                        FoodDetailView(food : MockData.foodEntries[i])
+                                    } label: {
+                                        FoodListView(food : MockData.foodEntries[i])
+                                    }
                                 }
                             }
                         }
                         Section(header: Text("DÎNER")) {
                             ForEach(MockData.foodEntries.indices, id: \.self) { i
                                 in
-                                NavigationLink {
-                                    //  FoodDetailView(food : MockData.foodEntries.diner)
-                                } label: {
-                                    //  FoodListView(food : MockData.foodEntries.diner)
+                                if (MockData.foodEntries[i].mealType == MealType.lunch) {
+                                    NavigationLink {
+                                        FoodDetailView(food : MockData.foodEntries[i])
+                                    } label: {
+                                        FoodListView(food : MockData.foodEntries[i])
+                                    }
                                 }
                             }
                         }
                         Section(header: Text("SOUPER")) {
                             ForEach(MockData.foodEntries.indices, id: \.self) { i
                                 in
-                                NavigationLink {
-                                    // FoodDetailView(food : MockData.foodEntries.souper)
-                                } label: {
-                                    //FoodListView(food : MockData.foodEntries.souper)
+                                if (MockData.foodEntries[i].mealType == MealType.dinner) {
+                                    NavigationLink {
+                                        FoodDetailView(food : MockData.foodEntries[i])
+                                    } label: {
+                                        FoodListView(food : MockData.foodEntries[i])
+                                    }
                                 }
                             }
                         }
@@ -115,6 +116,19 @@ struct DailySummaryView: View {
                     
                     
                     
+                }
+                .toolbar {
+                    ToolbarItem {
+                        Button {
+                            showAddForm.toggle()
+                        } label: {
+                            Label("Ajouter une entrée", systemImage: "plus")
+                        }
+                    
+                    }
+                }
+                .sheet(isPresented: $showAddForm) {
+                    AddMealView()
                 }
             }
         }
@@ -208,6 +222,54 @@ struct linePercent: View {
         }
     }
     
+}
+
+private func calculConsumedCal() -> Double {
+    var cal: Double
+
+    cal = 0
+    
+    for food in MockData.foodEntries {
+        cal += food.calories
+    }
+    
+    return cal
+}
+
+private func calculConsumedProt() -> Double {
+    var prot: Double
+
+    prot = 0
+    
+    for food in MockData.foodEntries {
+        prot += food.food?.protein ?? 0
+    }
+    
+    return prot
+}
+
+private func calculConsumedGluci() -> Double {
+    var gluci: Double
+    
+    gluci = 0
+    
+    for food in MockData.foodEntries {
+        gluci += food.food?.carbs ?? 0
+    }
+    
+    return gluci
+}
+
+private func calculConsumedLipi() -> Double {
+    var lipi: Double
+    
+    lipi = 0
+    
+    for food in MockData.foodEntries {
+        lipi += food.food?.fat ?? 0
+    }
+    
+    return lipi
 }
 
 

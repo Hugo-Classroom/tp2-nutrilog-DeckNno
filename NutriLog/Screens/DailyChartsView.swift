@@ -2,7 +2,24 @@ import SwiftUI
 
 struct DailyChartsView: View {
     var body: some View {
-        Text("Vue Graphiques")
+        NavigationStack {
+            ZStack {
+                VStack {
+                    HStack {
+                        Text("Graphiques")
+                            .bold()
+                            .font(.largeTitle)
+                            .offset(x: -85, y: -280)
+                    }
+                    .padding(.bottom, 30)
+                    
+                    HStack {
+                        
+                    }
+                }
+                
+            }
+        }
     }
 }
 

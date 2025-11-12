@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct FoodListView: View {
-    let food: Food
+    let food: FoodEntry
     
     var body: some View {
         
         HStack{
             VStack (alignment: .leading) {
-                Text(food.name)
-                Text("\(food.desc)")
+                Text("\(food.food?.name ?? "Erreur")")
+                Text("\(food.food?.desc ?? "Erreur")")
                     .font(.caption)
                     .foregroundStyle(.gray)
             }
@@ -29,5 +29,5 @@ struct FoodListView: View {
 }
 
 #Preview {
-    FoodListView(food : MockData.proteinFood)
+    FoodListView(food : MockData.foodEntries[0])
 }
